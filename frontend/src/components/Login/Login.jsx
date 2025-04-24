@@ -1,5 +1,5 @@
 import * as React from 'react';
-import logo from '../../assets/logo3.png'; // Adjust path as needed
+import logo from '../../assets/logo3.png'; 
 
 
 
@@ -43,13 +43,7 @@ export default function Login(){
 
             </div>
 
-                
-
-
-
-            
-
-
+            {/* Logo Section */}
             <div className='hidden lg:flex h-full '>
                 
              <img src={logo} alt="Store Logo" className='' />
