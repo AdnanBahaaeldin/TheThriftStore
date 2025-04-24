@@ -4,30 +4,26 @@ import Login from './components/Login/Login';
 
 
 
-
-
-
-function App() {
-  const user="John Doe"; // Replace with the actual name you want to pass
-  return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Layout name={user}/>} />
-      </Routes>
-    </Router>
-    
-  );
+//to test the login page 
+function App(){
+  return(
+    <div>
+      <Login/>
+    </div>
+  )
 }
 
 
-// function App(){
-//   return(
-//     <div>
-//       <Login/>
-//     </div>
-//   )
+// function App() {
+//   const user="John Doe"; // Replace with the actual name you want to pass
+//   return (
+//     <Router>
+//       <Routes>
+//         <Route path="/" element={<Layout name={user}/>} />
+//       </Routes>
+//     </Router>
+    
+//   );
 // }
-
-
 
 export default App;
