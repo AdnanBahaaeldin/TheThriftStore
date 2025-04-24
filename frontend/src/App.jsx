@@ -1,5 +1,11 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout/Layout'; // Adjust the path
+import Login from './components/Login/Login';
+
+
+
+
+
 
 function App() {
   const user="John Doe"; // Replace with the actual name you want to pass
@@ -12,5 +18,16 @@ function App() {
     
   );
 }
+
+
+// function App(){
+//   return(
+//     <div>
+//       <Login/>
+//     </div>
+//   )
+// }
+
+
 
 export default App;
