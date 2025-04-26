@@ -9,8 +9,8 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Layout name={user}/>} >
-          <Route path="/" element={<Marketplace />} />
-          <Route path=":category" element={<Marketplace />} />
+          <Route index element={<Marketplace />} />
+          {/*<Route path=":category" element={<Marketplace />} /> */}
 
           <Route path="/search" element={<SearchResults />} />
         </Route>
