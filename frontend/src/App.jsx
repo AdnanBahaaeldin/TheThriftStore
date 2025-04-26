@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout/Layout'; // Adjust the path
-<<<<<<< HEAD
+
 import Marketplace from './pages/Home/Marketplace'; // Adjust the path
 import SearchResults from './pages/Home/SearchResult'; // Adjust the path
 
