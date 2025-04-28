@@ -16,7 +16,7 @@ public class CartController {
     private CartService cartService;
 
     @PostMapping("/add")
-    public ResponseEntity<String> addItemToCart(@RequestParam Integer customerProductId,
+    public ResponseEntity<String> addItemToCart(@RequestParam Long customerProductId,
                                                 @RequestParam Integer quantity) {
         Long customerId = SecurityUtils.getCurrentUserId();
         try {
@@ -29,7 +29,7 @@ public class CartController {
     }
 
     @DeleteMapping("/remove")
-    public ResponseEntity<String> removeItemFromCart(@RequestParam int customerProductId) {
+    public ResponseEntity<String> removeItemFromCart(@RequestParam Long customerProductId) {
         Long customerId = SecurityUtils.getCurrentUserId();
 
         try{

@@ -20,7 +20,7 @@ public class CartService {
     @Autowired
     private CustomerProductRepo customerProductRepo;
 
-    public void addItemToCart(Long customerId, int customer_product_Id, int quantity) {
+    public void addItemToCart(Long customerId, Long customer_product_Id, int quantity) {
         Customer customer = customerRepo.findById(customerId).orElseThrow(() -> new RuntimeException("Customer not found"));
 
         CustomerProduct customerProduct = customerProductRepo.findById(customer_product_Id).orElseThrow(() -> new RuntimeException("Customer Product not found"));
@@ -45,7 +45,7 @@ public class CartService {
     }
 
     // removes one item from the cart
-    public void removeItemFromCart(Long customerId, int customer_product_Id) {
+    public void removeItemFromCart(Long customerId, Long customer_product_Id) {
         CartItem cartItem = cartItemRepo.findByCustomerId(customerId);
         CustomerProduct customerProduct = customerProductRepo.findById(customer_product_Id).orElseThrow(() -> new RuntimeException("Customer Product not found"));
 
