@@ -9,32 +9,14 @@ const Marketplace = () => {
   const [filteredItems, setFilteredItems] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const [quantities, setQuantities] = useState({});
   const [showDropdown, setShowDropdown] = useState(false);
   const location = useLocation();
   const categoryFromURL = decodeURIComponent(location.pathname.slice(1)).replace(/-/g, ' '); 
-
-
-  const handleIncrement = (id) => {
-    setQuantities((prev) => ({
-      ...prev,
-      [id]: (prev[id] || 0) + 1,
-    }));
-  };
-
-  const handleDecrement = (id) => {
-    setQuantities((prev) => ({
-      ...prev,
-      [id]: Math.max((prev[id] || 0) - 1, 0),
-    }));
-  };
 
   const handleCategorySelect = (category) => {
     setSelectedCategory(category);
     setShowDropdown(false);
   };
-
-  const totalQuantity = Object.values(quantities).reduce((acc, qty) => acc + qty, 0);
   
   // Fetch categories
   useEffect(() => {
@@ -61,7 +43,7 @@ const Marketplace = () => {
     } else {
       handleCategorySelect('all');
     }
-  }, [categoryFromURL, handleCategorySelect]);
+  }, [categoryFromURL]);
 
   // Filter items by selected category
   useEffect(() => {
@@ -73,26 +55,21 @@ const Marketplace = () => {
     }
   }, [selectedCategory, items]);
 
-
-
-
-
-
   return (
     <div className="p-4 ml-4">
       <MarketNavbar
-      categories={categories}
-      selectedCategory={selectedCategory}
-      handleCategorySelect={handleCategorySelect}
-      totalQuantity={totalQuantity}
+        categories={categories}
+        selectedCategory={selectedCategory}
+        handleCategorySelect={handleCategorySelect}
       />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-          {filteredItems.map((item) => (
-            <ItemCard key={item.id} item={item} quantity={quantities[item.id] || 0}
-            onIncrement={() => handleIncrement(item.id)}
-            onDecrement={() => handleDecrement(item.id)}/>
-          ))}
+        {filteredItems.map((item) => (
+          <ItemCard 
+            key={item.id} 
+            item={item}
+          />
+        ))}
       </div>
     </div>
   );
