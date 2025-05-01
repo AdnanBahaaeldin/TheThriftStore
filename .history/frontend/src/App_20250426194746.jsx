@@ -3,7 +3,6 @@ import Layout from './components/Layout/Layout'; // Adjust the path
 import Login from './components/Login/Login';
 import Marketplace from './pages/Home/Marketplace'; // Adjust the path
 import SearchResults from './pages/Home/SearchResult'; // Adjust the path
-
 import ItemViewCard from './components/ItemView/ItemViewCard';
 
 function App() {
@@ -40,39 +39,16 @@ function App() {
 // }
 
 
-=======
-// import Login from './components/Login/Login';
-// import Profile from './pages/Profile/Profile'; 
-
-
-
 // function App() {
 //   const user="John Doe"; // Replace with the actual name you want to pass
 //   return (
 //     <Router>
 //       <Routes>
-//         <Route path="/" element={<Layout name={user}/>} >
-//           <Route path="/" element={<Marketplace />} />
-//           <Route path=":category" element={<Marketplace />} />
-
-//           <Route path="/search" element={<SearchResults />} />
-//         </Route>
+//         <Route path="/" element={<Layout name={user}/>} />
 //       </Routes>
 //     </Router>
     
 //   );
-
 // }
 
-
-//to test the login page 
-// export default function App(){
-//   return(
-//     <div>
-//       <Profile />
-//     </div>
-//   )
-
-// }
-
- 
+export default App;

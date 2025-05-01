@@ -11,13 +11,11 @@ import {
   import { motion } from "framer-motion";
 
   export default function ItemCard({item, quantity, onIncrement, onDecrement }) {
-      const [categories, setCategories] = useState([]);
-      const [selectedCategory, setSelectedCategory] = useState("all");
-      const navigate = useNavigate(); 
-      
-      const handleClick = () => {
-        navigate(`/item/${item.id}`, { state: { item } }); 
-      };
+    
+    const navigate = useNavigate(); 
+    const handleClick = () => {
+      navigate(`/item/${item.id}`, { state: { item } }); 
+    };
     const handlingIncrement = (e) => {
       e.stopPropagation();
       onIncrement(); 
