@@ -11,11 +11,11 @@ function App() {
     <Router>
       <Routes>
         <Route path="/login" element={<Login />} />
-        {/* <Route path="/item" element={<ItemViewCard />} />  */}
+        <Route path="/item" element={<ItemViewCard />} /> {/* Adjust this path as needed */}
         <Route path="/" element={<Layout name={user}/>} >
           <Route path="/" element={<Marketplace />} />
           <Route path=":category" element={<Marketplace />} />
-          <Route path="/item/:id" element={<ItemViewCard />} />
+
           <Route path="/search" element={<SearchResults />} />
         </Route>
       </Routes>
