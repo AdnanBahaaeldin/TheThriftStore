@@ -3,6 +3,9 @@ import Layout from './components/Layout/Layout'; // Adjust the path
 import Login from './components/Login/Login';
 import Marketplace from './pages/Home/Marketplace'; // Adjust the path
 import SearchResults from './pages/Home/SearchResult'; // Adjust the path
+import Profile from './pages/Profile/Profile'; 
+import CreditCardPayment from './components/CreditCardForm/CreditCardForm'; 
+
 
 import ItemViewCard from './components/ItemView/ItemViewCard';
 
@@ -24,26 +27,6 @@ function App() {
     
   );
 }
-// =======
-// import Login from './components/Login/Login';
-
-
-
-//to test the login page 
-// function App(){
-//   return(
-//     <div>
-//       <Login/>
-//     </div>
-//   )
-// >>>>>>> front-end
-// }
-
-
-=======
-// import Login from './components/Login/Login';
-// import Profile from './pages/Profile/Profile'; 
-
 
 
 // function App() {
@@ -69,7 +52,7 @@ function App() {
 // export default function App(){
 //   return(
 //     <div>
-//       <Profile />
+//       <Checkout />
 //     </div>
 //   )
 
