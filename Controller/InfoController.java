@@ -1,9 +1,9 @@
-package com.online.TheThriftStore2.Controller;
+package com.online.TheThriftStore.Controller;
 
 
-import com.online.TheThriftStore2.*;
-import com.online.TheThriftStore2.Model.CustomerInfo;
-import com.online.TheThriftStore2.Service.InfoService;
+import com.online.TheThriftStore.*;
+import com.online.TheThriftStore.Model.CustomerInfo;
+import com.online.TheThriftStore.Service.InfoService;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;

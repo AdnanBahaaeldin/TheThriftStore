@@ -1,14 +1,14 @@
-package com.online.TheThriftStore2.Controller;
+package com.online.TheThriftStore.Controller;
 
-import com.online.TheThriftStore2.*;
+import com.online.TheThriftStore.*;
 
 import java.time.LocalDateTime;
 import java.util.*;
 
-import com.online.TheThriftStore2.Model.Customer;
-import com.online.TheThriftStore2.Repository.CustomerRepo;
-import com.online.TheThriftStore2.Repository.OrderRepo;
-import com.online.TheThriftStore2.Service.AdminService;
+import com.online.TheThriftStore.Model.Customer;
+import com.online.TheThriftStore.Repository.CustomerRepo;
+import com.online.TheThriftStore.Repository.OrderRepo;
+import com.online.TheThriftStore.Service.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;

@@ -1,9 +1,9 @@
-package com.online.TheThriftStore2.Service;
+package com.online.TheThriftStore.Service;
 
 
-import com.online.TheThriftStore2.*;
-import com.online.TheThriftStore2.Model.*;
-import com.online.TheThriftStore2.Repository.*;
+import com.online.TheThriftStore.*;
+import com.online.TheThriftStore.Model.*;
+import com.online.TheThriftStore.Repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

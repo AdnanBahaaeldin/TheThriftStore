@@ -1,9 +1,9 @@
-package com.online.TheThriftStore2.Service;
+package com.online.TheThriftStore.Service;
 
-import com.online.TheThriftStore2.Model.Customer;
-import com.online.TheThriftStore2.Order;
-import com.online.TheThriftStore2.Repository.CustomerRepo;
-import com.online.TheThriftStore2.Repository.OrderRepo;
+import com.online.TheThriftStore.Model.Customer;
+import com.online.TheThriftStore.Order;
+import com.online.TheThriftStore.Repository.CustomerRepo;
+import com.online.TheThriftStore.Repository.OrderRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
