@@ -3,38 +3,24 @@ import ItemCard from '../../components/Home/ItemCard';
 import MarketNavbar from '../../components/Home/MarketNavbar';
 import { useNavigate } from 'react-router-dom';
 import { useParams, useLocation } from 'react-router-dom';
+import { useCart } from '../../context/CartContext';
 
 const Marketplace = () => {
   const [items, setItems] = useState([]);
   const [filteredItems, setFilteredItems] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const [quantities, setQuantities] = useState({});
   const [showDropdown, setShowDropdown] = useState(false);
   const location = useLocation();
   const categoryFromURL = decodeURIComponent(location.pathname.slice(1)).replace(/-/g, ' '); 
-
-
-  const handleIncrement = (id) => {
-    setQuantities((prev) => ({
-      ...prev,
-      [id]: (prev[id] || 0) + 1,
-    }));
-  };
-
-  const handleDecrement = (id) => {
-    setQuantities((prev) => ({
-      ...prev,
-      [id]: Math.max((prev[id] || 0) - 1, 0),
-    }));
-  };
+  const { cartItems } = useCart();
 
   const handleCategorySelect = (category) => {
     setSelectedCategory(category);
     setShowDropdown(false);
   };
 
-  const totalQuantity = Object.values(quantities).reduce((acc, qty) => acc + qty, 0);
+  const totalQuantity = cartItems.reduce((acc, item) => acc + item.quantity, 0);
   
   // Fetch categories
   useEffect(() => {
@@ -73,11 +59,6 @@ const Marketplace = () => {
     }
   }, [selectedCategory, items]);
 
-
-
-
-
-
   return (
     <div className="p-4 ml-4">
       <MarketNavbar
@@ -89,9 +70,7 @@ const Marketplace = () => {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
           {filteredItems.map((item) => (
-            <ItemCard key={item.id} item={item} quantity={quantities[item.id] || 0}
-            onIncrement={() => handleIncrement(item.id)}
-            onDecrement={() => handleDecrement(item.id)}/>
+            <ItemCard key={item.id} item={item} />
           ))}
       </div>
     </div>

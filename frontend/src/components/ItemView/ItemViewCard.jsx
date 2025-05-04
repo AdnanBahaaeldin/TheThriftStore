@@ -5,18 +5,24 @@ import { useLocation, useParams } from 'react-router-dom';
 import { useState } from 'react';
 import MarketNavbar from '../../components/Home/MarketNavbar';
 import { useEffect } from 'react';
+import { useCart } from '../../context/CartContext';
+
 function ItemViewCard() {
     const { id } = useParams();
     const location = useLocation();
     const item = location.state?.item;
-    const [quantity, setQuantity] = useState(0);
     const [categories, setCategories] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState("");
     const [items, setItems] = useState([]);
     const categoryFromURL = decodeURIComponent(location.pathname.slice(1)).replace(/-/g, ' '); 
     const [showDropdown, setShowDropdown] = useState(false);
-      // Fetch items
-      useEffect(() => {
+    const { cartItems, addToCart, updateQuantity } = useCart();
+    const [localQuantity, setLocalQuantity] = useState(1);
+
+    const cartQuantity = cartItems.find(cartItem => cartItem.id === item?.id)?.quantity || 0;
+
+    // Fetch items
+    useEffect(() => {
         fetch("https://fakestoreapi.com/products")
           .then(res => res.json())
           .then(data => {
@@ -24,19 +30,32 @@ function ItemViewCard() {
             setFilteredItems(data);
           })
           .catch(err => console.error("Error fetching items:", err));
-      }, []);
+    }, []);
 
     // Fetch categories
-      useEffect(() => {
+    useEffect(() => {
         fetch("https://fakestoreapi.com/products/categories")
           .then(res => res.json())
           .then(data => setCategories(data))
           .catch(err => console.error("Error fetching categories:", err));
-      }, []);
+    }, []);
       
+    const handleIncrement = () => {
+        setLocalQuantity(prev => prev + 1);
+    };
 
-    const handleIncrement = () => setQuantity((prev) => prev + 1);
-    const handleDecrement = () => setQuantity((prev) => (prev > 0 ? prev - 1 : 0));
+    const handleDecrement = () => {
+        setLocalQuantity(prev => (prev > 1 ? prev - 1 : 1));
+    };
+
+    const handleAddToCart = () => {
+        if (cartQuantity === 0) {
+            addToCart({...item, quantity: localQuantity});
+        } else {
+            updateQuantity(item.id, cartQuantity + localQuantity);
+        }
+        setLocalQuantity(1); // Reset local quantity after adding to cart
+    };
 
     const handleCategorySelect = (category) => {
         setSelectedCategory(category);
@@ -49,7 +68,7 @@ function ItemViewCard() {
         } else {
           handleCategorySelect('all');
         }
-      }, [categoryFromURL, handleCategorySelect]);
+    }, [categoryFromURL, handleCategorySelect]);
 
     const renderStars = (rating) => {
         const fullStars = Math.floor(rating);
@@ -69,17 +88,19 @@ function ItemViewCard() {
             ))}
           </div>
         );
-      };
-      if (!item) {
+    };
+
+    if (!item) {
         return <div>Item not found</div>;
-      }
+    }
+
     return (
         <section className="relative">
             <MarketNavbar
             categories={categories}
             selectedCategory={selectedCategory}
             handleCategorySelect={handleCategorySelect}
-            totalQuantity={quantity}
+            totalQuantity={cartItems.reduce((acc, item) => acc + item.quantity, 0)}
             />
           <div className="w-3/4 mx-auto px-4 sm:px-6 lg:px-0 rounded-r-md border-gray-300 border bg-white mt-10 mb-10">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 mx-auto max-md:px-2">
@@ -126,7 +147,7 @@ function ItemViewCard() {
                         >
                             –
                         </button>
-                        <div className="px-6 py-2 text-lg font-semibold">{quantity}</div>
+                        <div className="px-6 py-2 text-lg font-semibold">{localQuantity}</div>
                         <button
                             onClick={handleIncrement}
                             className="px-4 py-2 text-lg font-semibold hover:bg-gray-100"
@@ -136,7 +157,7 @@ function ItemViewCard() {
                         </div>
 
                         {/* Add to Cart Button */}
-                        <button onClick={handleIncrement} className="flex items-center gap-2 bg-teal-50 text-customGreen font-semibold rounded-full px-6 py-3 hover:bg-teal-100 transition">
+                        <button onClick={handleAddToCart} className="flex items-center gap-2 bg-teal-50 text-customGreen font-semibold rounded-full px-6 py-3 hover:bg-teal-100 transition">
                         <ShoppingCartIcon className="h-5 w-5" />
                         Add to cart
                         </button>
@@ -197,7 +218,7 @@ function ItemViewCard() {
                 <div className="mt-8">
                     <h3 className="font-semibold mb-1">Share your thoughts</h3>
                     <p className="text-sm text-gray-500 mb-3">
-                    If you’ve used this product, share your thoughts with other customers
+                    If you've used this product, share your thoughts with other customers
                     </p>
                     <button className="border rounded px-4 py-2 text-sm hover:bg-gray-100">
                     Write a review
@@ -246,7 +267,7 @@ function ItemViewCard() {
             </div>
 
         </section>
-      );
+    );
 }
 
-export default ItemViewCard
+export default ItemViewCard;

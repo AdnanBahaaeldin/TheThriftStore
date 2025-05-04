@@ -92,7 +92,10 @@ const MarketNavbar = ({
             </div>
     
             {/* Right side: Cart Icon */}
-            <div className="p-4 cursor-pointer hover:text-gray-700 transition">
+            <div 
+              className="p-4 cursor-pointer hover:text-gray-700 transition relative"
+              onClick={() => navigate('/cart')}
+            >
               <ShoppingCartIcon className="w-8 h-8 text-customGreen" />
               {totalQuantity > 0 && (
                 <span className="absolute top-2 right-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-customGreen rounded-full">
