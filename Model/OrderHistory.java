@@ -1,7 +1,7 @@
-package com.online.TheThriftStore2.Model;
+package com.online.TheThriftStore.Model;
 
 
-import com.online.TheThriftStore2.*;
+import com.online.TheThriftStore.*;
 import jakarta.persistence.*;
 import jdk.jfr.Enabled;
 import lombok.Data;
