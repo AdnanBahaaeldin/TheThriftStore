@@ -11,32 +11,31 @@ import { CartProvider } from './context/CartContext';
 import ItemViewCard from './components/ItemView/ItemViewCard';
 import Sell from './pages/Sell/Sell';
 
-function App() {
-  const user="John Doe"; // Replace with the actual name you want to pass
-  return (
-    <CartProvider>
-      <Router>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/sell" element={<Sell />} />
-          <Route path="/cart" element={<Cart />} />
+// function App() {
+//   const user="John Doe"; // Replace with the actual name you want to pass
+//   return (
+//     <CartProvider>
+//       <Router>
+//         <Routes>
+//           <Route path="/login" element={<Login />} />
+//           <Route path="/about" element={<About />} />
+//           <Route path="/sell" element={<Sell />} />
+//           <Route path="/cart" element={<Cart />} />
           
-          {/* <Route path="/item" element={<ItemViewCard />} />  */}
-          <Route path="/" element={<Layout name={user}/>} >
-            <Route path="/" element={<Marketplace />} />
-            <Route path=":category" element={<Marketplace />} />
-            <Route path="/item/:id" element={<ItemViewCard />} />
-            <Route path="/search" element={<SearchResults />} />
-            <Route path="/profile" element={<Profile />} />
-          </Route>
-        </Routes>
-      </Router>
-    </CartProvider>
-  );
-}
+//           {/* <Route path="/item" element={<ItemViewCard />} />  */}
+//           <Route path="/" element={<Layout name={user}/>} >
+//             <Route path="/" element={<Marketplace />} />
+//             <Route path=":category" element={<Marketplace />} />
+//             <Route path="/item/:id" element={<ItemViewCard />} />
+//             <Route path="/search" element={<SearchResults />} />
+//             <Route path="/profile" element={<Profile />} />
+//           </Route>
+//         </Routes>
+//       </Router>
+//     </CartProvider>
+//   );
+// }
 
-export default App;
 
 // function App() {
 //   const user="John Doe"; // Replace with the actual name you want to pass
@@ -58,11 +57,11 @@ export default App;
 
 
 //to test the login page 
-// export default function App(){
-//   return(
-//     <div>
-//       <Checkout />
-//     </div>
-//   )
+export default function App(){
+  return(
+    <div>
+      <Login />
+    </div>
+  )
 
-// }
+}
