@@ -1,4 +1,4 @@
-package com.Adnan.SpringSecurity.Users.Models;
+package com.online.TheThriftStore.Users.Models;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,9 +13,13 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Customer extends Users {
-
+    
     @Column(nullable = false)
     private LocalDateTime lastLogin;
 
+//    @Column(nullable = false)
+    private Double balance; 
+
+    private String imageUrl;
 
 }
