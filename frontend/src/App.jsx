@@ -60,7 +60,7 @@ import Sell from './pages/Sell/Sell';
 export default function App(){
   return(
     <div>
-      <Profile />
+      <Login />
     </div>
   )
 

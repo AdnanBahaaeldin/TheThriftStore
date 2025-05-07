@@ -9,30 +9,56 @@ import { useState } from 'react';
 
 export default function Login() {
   const [isSignup, setIsSignup] = useState(false);
+
   const [formData, setFormData] = useState({
-    name: '',
+    firstName: '',
+    lastName: '',
     email: '',
     password: '',
-    confirmPassword: '',
+    phone: '',
   });
 
   const handleChange = (e) => {
+    const { name, value } = e.target;
+
+  // Allow only digits for the phone field
+  if (name === 'phone') {
+    const onlyNums = value.replace(/\D/g, ''); // Remove non-digits
+    setFormData((prev) => ({ ...prev, [name]: onlyNums }));
+    return;
+  }
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const handleSubmit = () => {
     if (isSignup) {
       // Simple validation logic
-      if (
-        !formData.name ||
-        !formData.email ||
-        !formData.password ||
-        formData.password !== formData.confirmPassword
-      ) {
-        alert('Please fill all fields correctly.');
+      if (!formData.firstName && !formData.lastName
+        &&!formData.phone && !formData.email && !formData.password && !formData.confirmPassword) {
+        alert('Please fill in all fields.');
         return;
-      }
-      console.log('Signup submitted:', formData);
+        } else{
+            if (!formData.password ) {
+              alert('Please enter your password.');
+              return;
+            }
+            if(formData.password !== formData.confirmPassword && formData.password && formData.confirmPassword){
+              alert('Passwords do not match.');
+            }
+            if(!formData.firstName){
+              alert('Please enter your First name.');
+            }
+            if(!formData.lastName){
+              alert('Please enter your Last name.');
+            }
+            if(!formData.email){
+              alert('Please enter your email.');
+            }
+            if(!formData.phone){
+              alert('Please enter your phone number.');
+            }
+         }
+         console.log('Signup submitted:', formData);
     } else {
       if (!formData.email || !formData.password) {
         alert('Please enter email and password.');
@@ -52,9 +78,9 @@ export default function Login() {
 
         {isSignup && (
           <div className="mb-6">
-            <label className="text-lg font-medium">Name</label>
+            <label className="text-lg font-medium">First Name</label>
             <input
-              name="name"
+              name="firstName"
               className="w-full border-2 rounded-xl p-4 mt-1 border-gray-150"
               placeholder="Enter your name"
               value={formData.name}
@@ -62,6 +88,37 @@ export default function Login() {
             />
           </div>
         )}
+
+        {isSignup && (
+          <div className="mb-6">
+            <label className="text-lg font-medium">Last Name</label>
+            <input
+              name="lastName"
+              className="w-full border-2 rounded-xl p-4 mt-1 border-gray-150"
+              placeholder="Enter family name"
+              value={formData.name}
+              onChange={handleChange}
+            />
+          </div>
+        )}
+
+        {isSignup && (
+          <div className="mb-6">
+            <label className="text-lg font-medium">Phone Number</label>
+            <input
+              name="phone"
+              type="tel"
+              pattern="[0-9]*"
+              inputMode="numeric"
+              className="w-full border-2 rounded-xl p-4 mt-1 border-gray-150"
+              placeholder="Enter phone number"
+              value={formData.phone}
+              onChange={handleChange}
+            />
+          </div>
+        )}
+
+        
 
         <div>
           <label className="text-lg font-medium">Email</label>
