@@ -19,6 +19,7 @@ public class InfoController {
     @GetMapping("/")
     public CustomerInfo info() {
         customerInfo=new CustomerInfo();
+        getCustomer();
         updateBalance();
         updateOrders();
         updateProducts();
@@ -37,4 +38,5 @@ public class InfoController {
         customerInfo.setCustBalance(infoService.getBalance());
     }
 
+    public void getCustomer(){customerInfo.setCustomer(infoService.getCustomer());}
 }

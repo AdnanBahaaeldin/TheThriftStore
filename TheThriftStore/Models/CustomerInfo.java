@@ -13,6 +13,8 @@ import java.util.*;
 @Data
 public class CustomerInfo {
 
+    private Customer customer;
+
     private double custBalance;
 
     private List<OrderHistory> orders;

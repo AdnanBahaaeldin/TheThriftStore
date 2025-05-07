@@ -86,4 +86,13 @@ public class InfoService {
 
         return CP;
     }
+
+    public Customer getCustomer(){
+        Long customerId = SecurityUtils.getCurrentUserId();
+        if(customerId %2 != 0) {
+            return primaryCustomerRepo.findById(customerId).get();
+        }else {
+            return secondaryCustomerRepo.findById(customerId).get();
+        }
+    }
 }
