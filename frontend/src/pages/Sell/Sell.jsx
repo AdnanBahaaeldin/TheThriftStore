@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { PencilIcon, TrashIcon, PlusIcon, XMarkIcon, ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { Link } from 'react-router-dom';
@@ -20,7 +19,8 @@ const Sell = () => {
     description: '',
     price: '',
     image: '',
-    category: ''
+    category: '',
+    quantity: ''
   });
 
   const handleInputChange = (e) => {
@@ -47,7 +47,8 @@ const Sell = () => {
       description: '',
       price: '',
       image: '',
-      category: ''
+      category: '',
+      quantity: ''
     });
   };
 
@@ -70,7 +71,8 @@ const Sell = () => {
       description: '',
       price: '',
       image: '',
-      category: ''
+      category: '',
+      quantity: ''
     });
   };
 
@@ -135,7 +137,7 @@ const Sell = () => {
               />
             </div>
             <div className="flex gap-4">
-              <div className="w-1/2">
+              <div className="w-1/3">
                 <label className="block text-sm font-semibold text-customGreen">Price ($)</label>
                 <input
                   type="number"
@@ -149,7 +151,20 @@ const Sell = () => {
                   placeholder="0.00"
                 />
               </div>
-              <div className="w-1/2">
+              <div className="w-1/3">
+                <label className="block text-sm font-semibold text-customGreen">Quantity</label>
+                <input
+                  type="number"
+                  name="quantity"
+                  value={formData.quantity}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-customGreen focus:ring-customGreen"
+                  required
+                  min="1"
+                  placeholder="1"
+                />
+              </div>
+              <div className="w-1/3">
                 <label className="block text-sm font-semibold text-customGreen">Category</label>
                 <select
                   name="category"
@@ -222,7 +237,10 @@ const Sell = () => {
                   <h3 className="text-lg font-bold text-gray-800">{item.name}</h3>
                   <p className="text-gray-500 flex-1">{item.description}</p>
                   <div className="flex items-center justify-between mt-2">
-                    <span className="text-customGreen font-extrabold text-xl">${item.price}</span>
+                    <div className="flex flex-col">
+                      <span className="text-customGreen font-extrabold text-xl">${item.price}</span>
+                      <span className="text-sm text-gray-500">Quantity: {item.quantity}</span>
+                    </div>
                     <div className="flex gap-2">
                       <button
                         onClick={() => handleEdit(item)}
