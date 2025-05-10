@@ -26,7 +26,38 @@ api.interceptors.request.use(
 //   delete: (id) => api.delete(/products/${id})
 // };
 
-    export const RegisterService = {
-        signup: (userData) => api.post('/auth/signup/customer', userData)        
+    export const CartService = {
+        addToCart: (itemId, quantity) => api.post(`/cart/add?itemId=${itemId}&quantity=${quantity}`),
+        removeFromCart: (cartItemId) =>
+          api.delete('/cart/remove', {
+            data: cartItemId   // sends { "cartItemId": 123 } in the body
+          }),
+        getAllCartItems: () => api.get('cart/items'),
+        updateQuantity: (itemId, quantity) => api.put('/cart/update', null, {params: { itemId, quantity },
+        }),
+        checkout: () => api.post('/orders/create'),
     };
+
+    export const RegisterService = {
+        signup: (userData) => api.post('/auth/signup/customer', userData), 
+        login: (loginData) => api.post('/auth/login',loginData)      
+    };
+
+    
+    export const SellerService = {
+        add: (productData) => api.post('/customer/addProduct', productData),
+        update: (productId, productData) => api.put(`/customer/updateProduct/${productId}`, productData),
+        delete: (productId) => api.delete(`/customer/removeProduct/${productId}`),
+        fetchAll: () => api.get('/customer/products/get')
+      };
+
+    export const CustomerService = {
+      getAllProducts: () => api.get('/customer/products/getAll')
+    }
+
+    export const SearchService = {
+      searchProducts: (keyword) => api.get(`/products/search?keyword= ${keyword}`)
+    }
+
+
 export default api;

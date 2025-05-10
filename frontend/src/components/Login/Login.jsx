@@ -2,10 +2,11 @@ import * as React from 'react';
 //import { useState } from 'react';
 import logo from '../../assets/logo4.png'; 
 
-
-
+import {RegisterService} from '../../services/api';
 
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from "axios";
 
 export default function Login() {
   const [isSignup, setIsSignup] = useState(false);
@@ -18,6 +19,17 @@ export default function Login() {
     phone: '',
   });
 
+  const [loginData, setLoginData] = useState({
+    email:'',
+    password:''
+  })
+
+  const navigate = useNavigate();
+  
+  const handleChangeLogin = (e) => {
+    setLoginData(prev => ({ ...prev, [e.target.name]: e.target.value }))
+  }
+
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -28,9 +40,13 @@ export default function Login() {
     return;
   }
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    setLoginData(prev => ({ ...prev, [e.target.name]: e.target.value }))
+
   };
 
-  const handleSubmit = () => {
+  const [isLoggedIn,setIsLoggedIn] = useState(false);
+
+  const handleSubmit = async () => {
     if (isSignup) {
       // Simple validation logic
       if (!formData.firstName && !formData.lastName
@@ -59,12 +75,41 @@ export default function Login() {
             }
          }
          console.log('Signup submitted:', formData);
+        //  RegisterService.signup(formData)
+        // .then(response => {
+        //   if(response.status < 300)
+        //     alert("Signup successful");
+        // })
+        // .catch(error => {
+        //   if(error.response){
+        //     alert("Registeration Failed: " + error.response.data)
+        //   }
+        // });
+        const response = await axios.post('http://localhost:8080/auth/signup/customer',formData);
+      console.log(response.status)
     } else {
-      if (!formData.email || !formData.password) {
+      if (!loginData.email || !loginData.password) {
         alert('Please enter email and password.');
         return;
       }
-      console.log('Login submitted:', formData);
+      console.log('Login submitted:', loginData);
+      const response = await axios.post('http://localhost:8080/auth/login',loginData)
+        
+      if(response.status < 300){
+          var token = response.data.token;
+          localStorage.setItem('token' , token);
+          alert("Login successful");
+          // Set token globally in Axios
+          // axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+         setIsLoggedIn(true);
+      }
+          
+      
+      if(isLoggedIn) {
+        console.log("hello inside");
+        navigate('/home')
+      }
+       setIsLoggedIn(false);
     }
   };
 
@@ -120,7 +165,31 @@ export default function Login() {
 
         
 
-        <div>
+        {!isSignup && (<div>
+          <label className="text-lg font-medium">Email</label>
+          <input
+            name="email"
+            type="email"
+            className="w-full border-2 rounded-xl p-4 mt-1 border-gray-150"
+            placeholder="Enter your email"
+            value={loginData.email}
+            onChange={handleChangeLogin}
+          />
+        </div>)}
+
+        {!isSignup && (<div className="mt-8">
+          <label className="text-lg font-medium">Password</label>
+          <input
+            name="password"
+            type="password"
+            className="w-full border-2 rounded-xl p-4 mt-1 border-gray-150"
+            placeholder="At least 4 characters"
+            value={loginData.password}
+            onChange={handleChangeLogin}
+          />
+        </div>)}
+
+        {isSignup && (<div>
           <label className="text-lg font-medium">Email</label>
           <input
             name="email"
@@ -130,9 +199,9 @@ export default function Login() {
             value={formData.email}
             onChange={handleChange}
           />
-        </div>
+        </div>)}
 
-        <div className="mt-8">
+        {isSignup && (<div className="mt-8">
           <label className="text-lg font-medium">Password</label>
           <input
             name="password"
@@ -142,7 +211,7 @@ export default function Login() {
             value={formData.password}
             onChange={handleChange}
           />
-        </div>
+        </div>)}
 
         {isSignup && (
           <div className="mt-8">

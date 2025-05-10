@@ -6,13 +6,17 @@ import {
     Typography,
     Button,
   } from "@material-tailwind/react";
-  import { StarIcon } from '@heroicons/react/20/solid';
+  import { StarIcon, PlusIcon } from '@heroicons/react/20/solid';
   import { useNavigate } from "react-router-dom";
   import { motion } from "framer-motion";
   import { useState } from "react";
   import { useCart } from '../../context/CartContext';
 
+
   export default function ItemCard({item}) {
+      console.log("item");
+
+      console.log(item);
       const [categories, setCategories] = useState([]);
       const [selectedCategory, setSelectedCategory] = useState("all");
       const navigate = useNavigate(); 
@@ -65,21 +69,29 @@ import {
     return (
       <Card onClick={handleClick} className="w-96 cursor-pointer">
         <CardHeader shadow={false} floated={false} className="h-96">
-          <img
-            src={item.image}
+          {/* <img
+            src={item.imageURL}
             alt="card-image"
             className="h-full w-full object-cover"
-          />
+          /> */}
+          {item.imageURL ? (
+                <img src={item.imageURL} alt="Preview" className="object-cover w-full h-full" onError={e => e.target.style.display='none'} />
+              ) : (
+                <PlusIcon className="h-12 w-12 text-customGreen opacity-40" />
+              )}
+              {/* {
+                <PlusIcon className="h-12 w-12 text-customGreen opacity-40" />
+              } */}
         </CardHeader>
         <CardBody>
           <div className="mb-2">
             <Typography color="blue-gray" className="font-medium">
-              {item.title}
+              {item.productName}
             </Typography>
-            <div className="flex items-center gap-1 text-grey-950">
+            {/* <div className="flex items-center gap-1 text-grey-950">
             {renderStars(item.rating?.rate)}
             {item.rating?.rate.toFixed(1)} ({item.rating?.count})
-            </div>
+            </div> */}
 
           </div>
         </CardBody>

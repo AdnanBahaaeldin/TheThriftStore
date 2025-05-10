@@ -11,7 +11,7 @@ export default function NavBar({ name, openSearch }) {
       <div className="flex items-center justify-between h-16 px-6 relative">
         {/* Left Links */}
         <div className="flex space-x-12 z-10">
-          <Link to="/" className="text-white font-medium">
+          <Link to="/home" className="text-white font-medium">
             Home    
           </Link>
           <Link to="/sell" className="text-white font-medium">

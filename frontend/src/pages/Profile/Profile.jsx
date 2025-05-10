@@ -1,18 +1,103 @@
 import React, { useEffect, useState } from "react";
-import mockUser from "./_mock_";
 import CreditCardForm from "../../components/CreditCardForm/CreditCardForm"; 
+import axios from "axios";
 
 export default function UserProfile() {
   const [user, setUser] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [step, setStep] = useState(1);
   const [amount, setAmount] = useState("");
+  const [isFetched, setIsFetched] = useState(false);
+  const [orders, setOrders] = useState([]);
 
-  useEffect(() => {
-    setTimeout(() => {
-      setUser(mockUser);
-    }, 500);
-  }, []);
+useEffect(() => {
+  if (!isFetched) {
+    const fetchData = async () => {
+      const token = localStorage.getItem('token');
+      try {
+        const response = await axios.get("http://localhost:8080/dashboard/", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          }
+        });
+        setUser(response.data);
+        console.log(response.data);
+        setIsFetched(true);
+      } catch (error) {
+        console.error("Fetch error:", error.message);
+        setIsFetched(false);
+      }
+    };
+
+    fetchData();
+  }
+}, [isFetched]);
+
+const handleInputChange=(e)=>{
+  const {name,value} = e.target;
+  setUser(prev => ({
+      ...prev,
+      [name]: value
+    }));
+}
+
+const handleBalance= async (e) => {
+  e.preventDefault();
+  console.log(typeof (amount));
+  console.log(amount);
+const token = localStorage.getItem('token');
+const numericAmount = parseInt(amount);
+console.log(typeof(numericAmount));
+const response = await axios.post('http://localhost:8080/customer/add/balance',numericAmount,
+ {
+  headers: {
+    Authorization: `Bearer ${token}`,
+    "Content-Type": "application/json"
+  }
+}
+)
+if(response.status<300){
+  alert(`Added ${numericAmount} EGP to wallet!`);
+}else{
+  alert('error ocurred while updating balance');
+}
+  setShowModal(false);
+  setAmount("");
+  setStep(1);
+  window.location.reload(); 
+}
+
+const handleSubmit = async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem('token');
+    const response =  axios.put('http://localhost:8080/dashboard/update', user,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
+}
+
+useEffect(() => {
+  const fetchOrders = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get('http://localhost:8080/orders/get', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setOrders(response.data);
+      console.log(orders)
+    } catch (error) {
+      console.error("Failed to fetch orders:", error);
+    }
+  };
+
+  fetchOrders();
+}, []); // Empty array means it runs once on mount
+
 
   if (!user) return <div className="text-center p-4">Loading...</div>;
 
@@ -47,7 +132,7 @@ export default function UserProfile() {
             <div>
               <p className="text-sm text-white uppercase">Wallet Balance</p>
               <p className="text-4xl font-bold text-white">
-                {user.wallet} <span className="text-lg font-medium text-white">EGP</span>
+                {user.custBalance} <span className="text-lg font-medium text-white">EGP</span>
               </p>
             </div>
           </div>
@@ -65,13 +150,21 @@ export default function UserProfile() {
         </div>
 
         <div className="w-2/4 bg-white p-6 rounded-xl shadow mt-4 shadow-xl">
-          <h3 className="text-xl font-semibold mb-2 text-gray-800">About the Seller</h3>
-          <p className="text-gray-600 leading-relaxed">
-            Michoo is a passionate seller with years of experience providing top-notch service and quality products. Known for reliability, speed, and a focus on customer satisfaction.
-          </p>
+          <h3 className="text-xl font-semibold mb-2 text-gray-800">Latest Orders</h3>
+          {orders.map((order) => {
+            <div> 
+                <p className="text-gray-600 leading-relaxed">
+                    {order.orderDate}
+                </p>
+                  <p className="text-gray-600 leading-relaxed">
+                    {order.totalAmount}
+                </p>
+            </div>
+          })}
+         
         </div>
 
-        <div className="w-1/4 bg-white p-6 rounded-xl shadow mt-4 shadow-xl">
+        {/* <div className="w-1/4 bg-white p-6 rounded-xl shadow mt-4 shadow-xl">
           <h3 className="text-xl font-semibold mb-2 text-gray-800">Seller Rating</h3>
           <div className="flex items-center space-x-1 text-yellow-500 text-2xl">
             {[...Array(5)].map((_, i) => (
@@ -79,19 +172,22 @@ export default function UserProfile() {
             ))}
           </div>
           <p className="text-gray-600 mt-2">{user.rating.toFixed(1)} out of 5</p>
-        </div>
+        </div> */}
       </div>
 
       {/* Edit Section */}
       <div className="w-4/4 bg-white p-6 mt-4 rounded-b-xl shadow-xl rounded-xl">
         <h3 className="text-xl font-semibold mb-4">Edit User Info</h3>
 
-        <form className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
             <input
               type="text"
               placeholder={user.name}
+              name='name'
+              value={user.name}
+              onChange={handleInputChange}
               className="w-full border border-gray-300 rounded-lg px-4 py-2"
             />
           </div>
@@ -101,24 +197,9 @@ export default function UserProfile() {
             <input
               type="tel"
               placeholder={user.phoneNumber}
-              className="w-full border border-gray-300 rounded-lg px-4 py-2"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
-            <input
-              type="text"
-              placeholder={user.address}
-              className="w-full border border-gray-300 rounded-lg px-4 py-2"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
-            <input
-              type="password"
-              placeholder="Enter new password"
+              name='phoneNumber'
+              value={user.phoneNumber}
+              onChange={handleInputChange}
               className="w-full border border-gray-300 rounded-lg px-4 py-2"
             />
           </div>
@@ -181,13 +262,7 @@ export default function UserProfile() {
                     <button
                       type="submit"
                       className="bg-customGreen text-white px-4 py-2 rounded hover:bg-green-700"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        alert(`Added ${amount} EGP to wallet!`);
-                        setShowModal(false);
-                        setAmount("");
-                        setStep(1);
-                      }}
+                      onClick={handleBalance}
                     >
                       Complete
                     </button>

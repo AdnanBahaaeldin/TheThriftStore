@@ -2,14 +2,53 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
+import { CartService, CustomerService } from '../../services/api';
+import axios from "axios";
 
 const Cart = () => {
   const navigate = useNavigate();
   const { cartItems, removeFromCart, updateQuantity, getCartTotal } = useCart();
 
-  const handleCheckout = () => {
-    console.log('Proceeding to checkout'); // Implement checkout logic
+  const handleIncrement = async (item) => {
+    console.log(item.id);
+    var token = localStorage.getItem('token') 
+    updateQuantity(item.id, item.quantity +1)
+    await CartService.updateQuantity(item.id,item.quantity+1,{ headers: {
+      Authorization: `Bearer ${token}`,
+    }});
+
+  }
+
+  const handleDecrement = async (item) => {
+    var token = localStorage.getItem('token') 
+    updateQuantity(item.id, item.quantity - 1)
+    await CartService.updateQuantity(item.id,item.quantity-1,{ headers: {
+      Authorization: `Bearer ${token}`,
+    }});
+  }
+
+  const handleCheckout = async () => {
+    var token = localStorage.getItem('token') 
+    const response = await CartService.checkout({
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      if(response.status < 300){
+        alert("ordered placed successfuly");
+        window.location.reload(); 
+      }else{
+        alert("Error occurred :(");
+      }
   };
+
+  const handleRemove = async (item) => {
+    var token = localStorage.getItem('token') 
+    await CartService.removeFromCart(item.id,{ headers: {
+      Authorization: `Bearer ${token}`,
+    }});
+    removeFromCart(item.id)
+  }
 
   const handleGoBack = () => {
     navigate(-1); // previous page
@@ -45,16 +84,16 @@ const Cart = () => {
             {cartItems.map((item) => (
               <div key={item.id} className="flex items-center border-b py-4">
                 <img
-                  src={item.image}
-                  alt={item.name}
+                  src={item.imageURL}
+                  alt={item.productName}
                   className="w-24 h-24 object-cover rounded-lg"
                 />
                 <div className="ml-4 flex-grow">
-                  <h3 className="text-lg font-semibold">{item.name}</h3>
+                  <h3 className="text-lg font-semibold">{item.productName}</h3>
                   <p className="text-gray-600">${item.price.toFixed(2)}</p>
                   <div className="flex items-center mt-2">
                     <button
-                      onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                      onClick={() => handleDecrement(item)}
                       className="px-2 py-1 border rounded-l"
                       disabled={item.quantity <= 1}
                     >
@@ -62,7 +101,7 @@ const Cart = () => {
                     </button>
                     <span className="px-4 py-1 border-t border-b">{item.quantity}</span>
                     <button
-                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                      onClick={ () => handleIncrement (item)}
                       className="px-2 py-1 border rounded-r"
                     >
                       +
@@ -72,7 +111,7 @@ const Cart = () => {
                 <div className="text-right">
                   <p className="font-semibold">${(item.price * item.quantity).toFixed(2)}</p>
                   <button
-                    onClick={() => removeFromCart(item.id)}
+                    onClick={() => handleRemove (item)}
                     className="text-red-500 hover:text-red-700 mt-2"
                   >
                     Remove
@@ -106,7 +145,7 @@ const Cart = () => {
                 onClick={handleCheckout}
                 className="w-full mt-6 py-3 bg-[#2cada0] text-white rounded-lg hover:bg-[#115e59] transition-colors"
               >
-                Proceed to Checkout
+                Place Order
               </button>
             </div>
           </div>

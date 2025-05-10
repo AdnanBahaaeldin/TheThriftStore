@@ -6,6 +6,9 @@ import { useState } from 'react';
 import MarketNavbar from '../../components/Home/MarketNavbar';
 import { useEffect } from 'react';
 import { useCart } from '../../context/CartContext';
+import { CartService, CustomerService } from '../../services/api';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 function ItemViewCard() {
     const { id } = useParams();
@@ -18,41 +21,71 @@ function ItemViewCard() {
     const [showDropdown, setShowDropdown] = useState(false);
     const { cartItems, addToCart, updateQuantity } = useCart();
     const [localQuantity, setLocalQuantity] = useState(1);
-
+    const navigate = useNavigate()
     const cartQuantity = cartItems.find(cartItem => cartItem.id === item?.id)?.quantity || 0;
 
     // Fetch items
-    useEffect(() => {
-        fetch("https://fakestoreapi.com/products")
-          .then(res => res.json())
-          .then(data => {
-            setItems(data);
-            setFilteredItems(data);
-          })
-          .catch(err => console.error("Error fetching items:", err));
-    }, []);
+    // useEffect(() => {
+    //     fetch("https://fakestoreapi.com/products")
+    //       .then(res => res.json())
+    //       .then(data => {
+    //         setItems(data);
+    //         setFilteredItems(data);
+    //       })
+    //       .catch(err => console.error("Error fetching items:", err));
+    // }, []);
+
+     useEffect(() => {
+        const fetchProducts = async () => {
+          try {
+            var token = localStorage.getItem('token') 
+            const response = await CustomerService.getAllProducts( {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              }
+            });
+            console.log("response", response.data)
+            setItems(response.data);
+            // setFilteredItems(response.data);
+
+            //setLoading(false);
+          } catch (err) {
+            setError('Failed to fetch products');
+            //setLoading(false);
+            console.error(err);
+          }
+        };
+        fetchProducts();
+      }, []);
 
     // Fetch categories
-    useEffect(() => {
-        fetch("https://fakestoreapi.com/products/categories")
-          .then(res => res.json())
-          .then(data => setCategories(data))
-          .catch(err => console.error("Error fetching categories:", err));
-    }, []);
+    // useEffect(() => {
+    //     fetch("https://fakestoreapi.com/products/categories")
+    //       .then(res => res.json())
+    //       .then(data => setCategories(data))
+    //       .catch(err => console.error("Error fetching categories:", err));
+    // }, []);
       
     const handleIncrement = () => {
-        setLocalQuantity(prev => prev + 1);
+      setLocalQuantity(prev => prev + 1);  
     };
 
     const handleDecrement = () => {
-        setLocalQuantity(prev => (prev > 1 ? prev - 1 : 1));
+      setLocalQuantity(prev => (prev > 1 ? prev - 1 : 0));
     };
 
-    const handleAddToCart = () => {
+    const handleAddToCart = async () => {
+      var token = localStorage.getItem('token') 
         if (cartQuantity === 0) {
             addToCart({...item, quantity: localQuantity});
+            await CartService.addToCart(item.id,1,{ headers: {
+              Authorization: `Bearer ${token}`,
+            }});
         } else {
             updateQuantity(item.id, cartQuantity + localQuantity);
+            await CartService.updateQuantity(item.id,localQuantity,{ headers: {
+              Authorization: `Bearer ${token}`,
+            }});
         }
         setLocalQuantity(1); // Reset local quantity after adding to cart
     };
@@ -60,6 +93,13 @@ function ItemViewCard() {
     const handleCategorySelect = (category) => {
         setSelectedCategory(category);
         setShowDropdown(false);
+    };
+
+
+    const handleBuyNow = () => {
+        handleAddToCart()
+        navigate('/cart')
+
     };
 
     useEffect(() => {
@@ -70,25 +110,25 @@ function ItemViewCard() {
         }
     }, [categoryFromURL, handleCategorySelect]);
 
-    const renderStars = (rating) => {
-        const fullStars = Math.floor(rating);
-        const hasHalfStar = rating % 1 >= 0.5;
-        const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+    // const renderStars = (rating) => {
+    //     const fullStars = Math.floor(rating);
+    //     const hasHalfStar = rating % 1 >= 0.5;
+    //     const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
       
-        return (
-          <div className="flex items-center gap-0.5">
-            {[...Array(fullStars)].map((_, i) => (
-              <StarIcon key={`full-${i}`} className="w-5 h-5 text-yellow-500" />
-            ))}
-            {hasHalfStar && (
-              <StarIcon className="w-5 h-5 text-yellow-300" />
-            )}
-            {[...Array(emptyStars)].map((_, i) => (
-              <StarIcon key={`empty-${i}`} className="w-5 h-5 text-gray-300" />
-            ))}
-          </div>
-        );
-    };
+    //     return (
+    //       <div className="flex items-center gap-0.5">
+    //         {[...Array(fullStars)].map((_, i) => (
+    //           <StarIcon key={`full-${i}`} className="w-5 h-5 text-yellow-500" />
+    //         ))}
+    //         {hasHalfStar && (
+    //           <StarIcon className="w-5 h-5 text-yellow-300" />
+    //         )}
+    //         {[...Array(emptyStars)].map((_, i) => (
+    //           <StarIcon key={`empty-${i}`} className="w-5 h-5 text-gray-300" />
+    //         ))}
+    //       </div>
+    //     );
+    // };
 
     if (!item) {
         return <div>Item not found</div>;
@@ -108,7 +148,7 @@ function ItemViewCard() {
               <div className="img">
                 <div className="img-box h-full max-lg:mx-auto">
                   <img
-                    src={item.image}
+                    src={item.imageURL}
                     alt="item image"
                     className="max-lg:mx-auto lg:ml-auto h-full object-cover"
                   />
@@ -119,10 +159,10 @@ function ItemViewCard() {
               <div className="data w-full lg:pr-8 pr-0 xl:justify-start justify-center flex items-center max-lg:pb-10 xl:my-2 lg:my-5 my-0">
                 <div className="data w-full max-w-xl">
                   <p className="text-lg font-medium leading-8 text-customGreen mb-4">
-                    {item.category}
+                    {item.categoryName}
                   </p>
                   <h2 className="font-manrope font-bold text-3xl leading-10 text-gray-900 mb-2 capitalize">
-                    {item.title}
+                    {item.productName}
                   </h2>
     
                   <div className="flex flex-col sm:flex-row sm:items-center mb-6">
@@ -130,10 +170,10 @@ function ItemViewCard() {
                       ${item.price} 
                     </h6>
                     {/* Rating Stars */}
-                    <div className="flex items-center gap-1 text-grey-500">
+                    {/* <div className="flex items-center gap-1 text-grey-500">
                         {renderStars(item.rating?.rate)}
                         {item.rating?.rate.toFixed(1)} ({item.rating?.count})
-                    </div>
+                    </div> */}
                   </div>
                   <p className='text-gray-500 mb-10'>{item.description}</p>
                   <div className="flex flex-col gap-4 w-full max-w-md mx-auto p-4">
@@ -166,7 +206,7 @@ function ItemViewCard() {
                     {/* Favorite (heart) and Buy Now */}
                     <div className="flex items-center gap-4">
                         {/* Buy Now Button */}
-                        <button className="flex-1 bg-customGreen text-white font-semibold rounded-full px-6 py-4 hover:bg-teal-500 transition">
+                        <button onClick = {handleBuyNow} className="flex-1 bg-customGreen text-white font-semibold rounded-full px-6 py-4 hover:bg-teal-500 transition">
                         Buy Now
                         </button>
                     </div>
@@ -180,15 +220,15 @@ function ItemViewCard() {
             <h2 className="text-2xl font-semibold mb-4">Product Ratings & Reviews</h2>
 
             {/* Overall rating */}
-            <div className="flex items-center gap-2 mb-6">
+            {/* <div className="flex items-center gap-2 mb-6">
                 {renderStars(item.rating?.rate)}
                 <p className="text-gray-600">Based on {item.rating?.count} reviews</p>
-            </div>
+            </div> */}
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Left side - Ratings breakdown */}
                 <div className="space-y-4">
-                    {[5, 4, 3, 2, 1].map((star) => {
+                    {/* {[5, 4, 3, 2, 1].map((star) => {
                         let percent = 0;
 
                         if (item.rating.rate >= star) {
@@ -212,7 +252,7 @@ function ItemViewCard() {
                             <span className="text-gray-600 text-sm w-10">{percent}%</span>
                             </div>
                         );
-                    })}
+                    })} */}
 
                 {/* Write review button */}
                 <div className="mt-8">

@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState } from 'react';
-
+import { CartService } from '../services/api';
+import axios from 'axios';
 const CartContext = createContext();
 
 export const useCart = () => {
@@ -13,16 +14,22 @@ export const useCart = () => {
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
 
-  const addToCart = (item) => {
+  const addToCart = async (item) => {
     setCartItems((prevItems) => {
       const existingItem = prevItems.find((i) => i.id === item.id);
+      
       if (existingItem) {
         return prevItems.map((i) =>
           i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
         );
       }
       return [...prevItems, { ...item, quantity: 1 }];
+      
     });
+    var token = localStorage.getItem('token') 
+    await CartService.addToCart(item.id,item.quantity,{ headers: {
+                  Authorization: `Bearer ${token}`,
+                }});
   };
 
   const removeFromCart = (itemId) => {
