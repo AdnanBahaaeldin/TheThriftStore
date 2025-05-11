@@ -15,13 +15,34 @@ useEffect(() => {
     const fetchData = async () => {
       const token = localStorage.getItem('token');
       try {
+        // Fetch user data
         const response = await axios.get("http://localhost:8080/dashboard/", {
           headers: {
             Authorization: `Bearer ${token}`,
-          }
+          },
         });
-        setUser(response.data);
-        console.log(response.data);
+
+        const userData = response.data;
+
+        // Fetch profile image
+        let profileImageURL = null;
+        try {
+          const imageResponse = await axios.get(
+            `http://localhost:8080/customer/image`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+              responseType: 'blob',
+            }
+          );
+          profileImageURL = URL.createObjectURL(imageResponse.data);
+        } catch (error) {
+          console.warn("No profile image found.");
+        }
+
+        // Merge profile image into user data
+        setUser({ ...userData, avatar: profileImageURL });
         setIsFetched(true);
       } catch (error) {
         console.error("Fetch error:", error.message);
@@ -88,8 +109,9 @@ useEffect(() => {
           Authorization: `Bearer ${token}`,
         },
       });
+      // console.log(response.data)
       setOrders(response.data);
-      console.log(orders)
+      
     } catch (error) {
       console.error("Failed to fetch orders:", error);
     }
@@ -97,6 +119,44 @@ useEffect(() => {
 
   fetchOrders();
 }, []); // Empty array means it runs once on mount
+
+useEffect(() => {
+  console.log(orders)
+})
+
+const handleImageChange = async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  // Update the local user state with the new avatar preview
+  setUser((prev) => ({
+    ...prev,
+    avatar: URL.createObjectURL(file), // Create a preview URL for the image
+  }));
+
+  // Upload the image to the server
+  try {
+    const token = localStorage.getItem('token');
+    const formData = new FormData();
+    formData.append('imageFile', file);
+
+    const response = await axios.put('http://localhost:8080/customer/update/image', formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    if (response.status < 300) {
+      alert('Profile image updated successfully!');
+    } else {
+      alert('Failed to update profile image.');
+    }
+  } catch (error) {
+    console.error('Error uploading profile image:', error);
+    alert('An error occurred while uploading the profile image.');
+  }
+};
 
 
   if (!user) return <div className="text-center p-4">Loading...</div>;
@@ -106,7 +166,7 @@ useEffect(() => {
       {/* Flex Row: Avatar + Info */}
       <div className="flex">
         {/* Left: Avatar */}
-        <div className="w-1/4 flex items-center justify-center p-6">
+        <div className="w-1/4 items-center justify-center p-6">
           <div className="w-32 h-32 rounded-full border-4 border-customGreen overflow-hidden">
             <img
               src={user.avatar}
@@ -114,6 +174,13 @@ useEffect(() => {
               className="w-full h-full object-cover"
             />
           </div>
+          <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-customGreen focus:ring-customGreen bg-white"
+                
+          />
         </div>
 
         {/* Right: Info Box */}
@@ -151,15 +218,22 @@ useEffect(() => {
 
         <div className="w-2/4 bg-white p-6 rounded-xl shadow mt-4 shadow-xl">
           <h3 className="text-xl font-semibold mb-2 text-gray-800">Latest Orders</h3>
-          {orders.map((order) => {
-            <div> 
+          {orders.map((order , index) => {
+            console.log(order); // This will log each order
+            return (
+              <div key={order.orderId}> 
+
+                <p className="text-gray-800 leading-relaxed font-bold">
+                  Order Number : {index + 1}
+                </p>
                 <p className="text-gray-600 leading-relaxed">
-                    {order.orderDate}
+                  Date : {order.orderDate}
                 </p>
-                  <p className="text-gray-600 leading-relaxed">
-                    {order.totalAmount}
+                <p className="text-gray-600 leading-relaxed">
+                  Total : {order.totalAmount} EGP
                 </p>
-            </div>
+              </div>
+            );
           })}
          
         </div>

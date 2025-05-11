@@ -2,7 +2,7 @@ import NavBar from './NavBar'; // Adjust the path if needed
 import { Outlet } from "react-router-dom";
 import { useState } from "react";
 import SearchBar from './SearchBar'; // Adjust the path if needed
-const Layout = ({name}) => {
+const Layout = () => {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   return (
@@ -20,7 +20,7 @@ const Layout = ({name}) => {
         </div>
       )}
 
-      {!searchOpen && <NavBar name={name} openSearch={() => setSearchOpen(true)} />}
+      {!searchOpen && <NavBar openSearch={() => setSearchOpen(true)} />}
       <main className="p-4">
             <Outlet context={{ searchQuery }}/> 
       </main>

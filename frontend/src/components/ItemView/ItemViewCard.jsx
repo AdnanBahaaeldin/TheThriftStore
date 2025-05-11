@@ -78,14 +78,11 @@ function ItemViewCard() {
       var token = localStorage.getItem('token') 
         if (cartQuantity === 0) {
             addToCart({...item, quantity: localQuantity});
-            await CartService.addToCart(item.id,1,{ headers: {
-              Authorization: `Bearer ${token}`,
-            }});
+            // await CartService.addToCart(item.id,1,{ headers: {
+            //   Authorization: `Bearer ${token}`,
+            // }});
         } else {
             updateQuantity(item.id, cartQuantity + localQuantity);
-            await CartService.updateQuantity(item.id,localQuantity,{ headers: {
-              Authorization: `Bearer ${token}`,
-            }});
         }
         setLocalQuantity(1); // Reset local quantity after adding to cart
     };

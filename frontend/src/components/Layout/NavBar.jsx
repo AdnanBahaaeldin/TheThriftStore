@@ -1,11 +1,11 @@
 import { BellIcon, UserIcon } from '@heroicons/react/24/outline';
 import logo from '../../assets/logo3.png';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
-import { Link } from 'react-router-dom';
+import { Link, Links } from 'react-router-dom';
 import React from 'react';
 
 
-export default function NavBar({ name, openSearch }) {
+export default function NavBar({ openSearch }) {
   return (
     <nav className="bg-customGreen shadow relative sticky top-0 z-50">
       <div className="flex items-center justify-between h-16 px-6 relative">
@@ -33,10 +33,9 @@ export default function NavBar({ name, openSearch }) {
 
         {/* Right User + Icons */}
         <div className="flex items-center space-x-4 z-10">
-          <p className="text-sm text-white">Hello, {name}</p>
-          <button className="text-white p-2 rounded-full focus:outline-none focus:ring-2 focus:ring-white">
+          <Link className="text-white p-2 rounded-full focus:outline-none focus:ring-2 focus:ring-white" to="/profile">
             <UserIcon className="h-6 w-6" />
-          </button>
+          </Link>
           <button>
             <MagnifyingGlassIcon onClick={openSearch} className="h-5 w-5 text-white cursor-pointer" />
           </button>

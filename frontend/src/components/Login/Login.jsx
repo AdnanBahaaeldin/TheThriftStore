@@ -44,7 +44,6 @@ export default function Login() {
 
   };
 
-  const [isLoggedIn,setIsLoggedIn] = useState(false);
 
   const handleSubmit = async () => {
     if (isSignup) {
@@ -101,15 +100,13 @@ export default function Login() {
           alert("Login successful");
           // Set token globally in Axios
           // axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-         setIsLoggedIn(true);
+         if (response.data.role === "customer") {
+            navigate('/home');
+          } else if (response.data.role === "admin") {
+            navigate('/admin');
+          }
       }
-          
       
-      if(isLoggedIn) {
-        console.log("hello inside");
-        navigate('/home')
-      }
-       setIsLoggedIn(false);
     }
   };
 

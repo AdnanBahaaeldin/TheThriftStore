@@ -10,9 +10,16 @@ import Cart from './pages/Cart/Cart';
 import { CartProvider } from './context/CartContext';
 import ItemViewCard from './components/ItemView/ItemViewCard';
 import Sell from './pages/Sell/Sell';
+import AdminLayout from './components/Admin/AdminLayout';
+import AdminDashboard from './pages/Admin/Dashboard';
+import UserManagement from './pages/Admin/UserManagement';
+import ItemManagement from './pages/Admin/ItemManagement';
+import TransactionMonitoring from './pages/Admin/TransactionMonitoring';
+import ReportsAnalytics from './pages/Admin/ReportsAnalytics';
+import InventoryOverview from './pages/Admin/InventoryOverview';
+
 
 export default function App() {
-  const user="John Doe"; // Replace with the actual name you want to pass
   return (
     <CartProvider>
       <Router>
@@ -21,9 +28,19 @@ export default function App() {
           <Route path="/about" element={<About  />} />
           <Route path="/sell" element={<Sell />} />
           <Route path="/cart" element={<Cart />} />
+
+           {/* Admin Routes */}
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<AdminDashboard />} />
+            <Route path="users" element={<UserManagement />} />
+            <Route path="items" element={<ItemManagement />} />
+            <Route path="transactions" element={<TransactionMonitoring />} />
+            <Route path="reports" element={<ReportsAnalytics />} />
+            <Route path="inventory" element={<InventoryOverview />} />
+          </Route>
           
           {/* <Route path="/item" element={<ItemViewCard />} />  */}
-          <Route path="/" element={<Layout name={user}/>} >
+          <Route path="/" element={<Layout/>} >
             <Route path="/home" element={<Marketplace />} />
             <Route path=":category" element={<Marketplace />} />
             <Route path="/item/:id" element={<ItemViewCard />} />

@@ -1,30 +1,35 @@
-import React from 'react';
+import React, { use } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { CartService, CustomerService } from '../../services/api';
 import axios from "axios";
+import { useEffect } from 'react';
+
 
 const Cart = () => {
   const navigate = useNavigate();
-  const { cartItems, removeFromCart, updateQuantity, getCartTotal } = useCart();
+  const { cartItems, removeFromCart, updateQuantity, getCartTotal , mergedCartItems } = useCart();
 
   const handleIncrement = async (item) => {
-    console.log(item.id);
-    var token = localStorage.getItem('token') 
-    updateQuantity(item.id, item.quantity +1)
-    await CartService.updateQuantity(item.id,item.quantity+1,{ headers: {
-      Authorization: `Bearer ${token}`,
-    }});
+    console.log(item.customerProductId);
+    console.log(item.itemQuantity);
+    // console.log(item.cartId);
+    updateQuantity(item.customerProductId, item.itemQuantity +1)
+    window.location.reload();
 
   }
 
+  // useEffect(() => {
+  //   console.log(cartItems);
+  //   fetchCartItems();
+  //   console.log(MergedCartItems)
+  // })
+
   const handleDecrement = async (item) => {
-    var token = localStorage.getItem('token') 
-    updateQuantity(item.id, item.quantity - 1)
-    await CartService.updateQuantity(item.id,item.quantity-1,{ headers: {
-      Authorization: `Bearer ${token}`,
-    }});
+    updateQuantity(item.customerProductId, item.itemQuantity - 1)
+    window.location.reload();
+
   }
 
   const handleCheckout = async () => {
@@ -42,12 +47,10 @@ const Cart = () => {
       }
   };
 
-  const handleRemove = async (item) => {
-    var token = localStorage.getItem('token') 
-    await CartService.removeFromCart(item.id,{ headers: {
-      Authorization: `Bearer ${token}`,
-    }});
-    removeFromCart(item.id)
+  const handleRemove = (item) => {
+    removeFromCart(item.customerProductId)
+    window.location.reload();
+
   }
 
   const handleGoBack = () => {
@@ -81,8 +84,8 @@ const Cart = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Cart Items */}
           <div className="md:col-span-2">
-            {cartItems.map((item) => (
-              <div key={item.id} className="flex items-center border-b py-4">
+            {(mergedCartItems || []).map((item) => (
+              <div key={item.productId} className="flex items-center border-b py-4">
                 <img
                   src={item.imageURL}
                   alt={item.productName}
@@ -90,7 +93,7 @@ const Cart = () => {
                 />
                 <div className="ml-4 flex-grow">
                   <h3 className="text-lg font-semibold">{item.productName}</h3>
-                  <p className="text-gray-600">${item.price.toFixed(2)}</p>
+                  <p className="text-gray-600">${item.price}</p>
                   <div className="flex items-center mt-2">
                     <button
                       onClick={() => handleDecrement(item)}
@@ -99,7 +102,7 @@ const Cart = () => {
                     >
                       -
                     </button>
-                    <span className="px-4 py-1 border-t border-b">{item.quantity}</span>
+                    <span className="px-4 py-1 border-t border-b">{item.itemQuantity}</span>
                     <button
                       onClick={ () => handleIncrement (item)}
                       className="px-2 py-1 border rounded-r"
@@ -109,7 +112,7 @@ const Cart = () => {
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="font-semibold">${(item.price * item.quantity).toFixed(2)}</p>
+                  <p className="font-semibold">${(item.price * item.itemQuantity).toFixed(2)}</p>
                   <button
                     onClick={() => handleRemove (item)}
                     className="text-red-500 hover:text-red-700 mt-2"

@@ -11,6 +11,7 @@ import {
   import { motion } from "framer-motion";
   import { useState } from "react";
   import { useCart } from '../../context/CartContext';
+  import { CartService } from "../../services/api";
 
 
   export default function ItemCard({item}) {
@@ -28,8 +29,9 @@ import {
 
       const quantity = cartItems.find(cartItem => cartItem.id === item.id)?.quantity || 0;
 
-      const handleIncrement = (e) => {
+      const handleIncrement = async (e) => {
         e.stopPropagation();
+        var token = localStorage.getItem('token') 
         if (quantity === 0) {
           addToCart(item);
         } else {
@@ -37,7 +39,7 @@ import {
         }
       };
 
-      const handleDecrement = (e) => {
+      const handleDecrement = async (e) => {
         e.stopPropagation();
         if (quantity > 1) {
           updateQuantity(item.id, quantity - 1);
