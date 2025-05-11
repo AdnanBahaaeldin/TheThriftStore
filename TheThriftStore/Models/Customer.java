@@ -2,6 +2,7 @@ package com.TheThriftStore.TheThriftStore.Models;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Lob;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,8 +19,9 @@ public class Customer extends Users {
     private LocalDateTime lastLogin;
 
 //    @Column(nullable = false)
-    private Double balance; 
+    private Double balance = 0.0;
 
-    private String imageUrl;
+    @Lob
+    private byte[] imageData;
 
 }

@@ -10,6 +10,7 @@ import com.TheThriftStore.TheThriftStore.PrimaryRepositories.PrimaryCustomerRepo
 import com.TheThriftStore.TheThriftStore.SecondaryRepositories.SecondaryCartItemRepo;
 import com.TheThriftStore.TheThriftStore.SecondaryRepositories.SecondaryCustomerProductRepo;
 import com.TheThriftStore.TheThriftStore.SecondaryRepositories.SecondaryCustomerRepo;
+import com.TheThriftStore.TheThriftStore.Utility.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -72,7 +73,8 @@ public class CartService {
         customerProduct.setQuantity(customerProduct.getQuantity() - quantity);
         if (customerProduct.getQuantity() == 0) {
             customerProduct.setStatus(CustomerProduct.Status.SOLD);
-        }
+        }else
+            customerProduct.setStatus(CustomerProduct.Status.AVAILABLE);
 
         if(sellerId %2 != 0) {
             primaryCustomerProductRepo.save(customerProduct);
@@ -160,5 +162,54 @@ public class CartService {
                 removeItemFromCart(customerId, item.getCustomerProductId());
             }
         }
+    }
+
+    public void updateCartItem(Long customerProductId, Integer quantity) {
+        Long custId = SecurityUtils.getCurrentUserId();
+        CustomerProduct customerProduct;
+        List<CartItem>cartItemList;
+        if(custId %2 !=0) {
+            cartItemList = primaryCartItemRepo.findAllByCustomerId(custId);
+        }else {
+            cartItemList = secondaryCartItemRepo.findAllByCustomerId(custId);
+        }
+
+        CartItem reqItem = null;
+        for(var item : cartItemList) {
+            if(item.getCustomerProductId().equals(customerProductId)) {
+                reqItem = item;
+                break;
+            }
+        }
+
+        if(reqItem == null) return;
+
+        if(customerProductId %2 !=0 ){
+            customerProduct =  primaryCustomerProductRepo.findById(customerProductId).orElseThrow();
+        }else {
+            customerProduct = secondaryCustomerProductRepo.findById(customerProductId).orElseThrow();
+        }
+
+        customerProduct.setQuantity(customerProduct.getQuantity()+reqItem.getQuantity());
+
+        if(quantity > customerProduct.getQuantity()) {
+            throw new RuntimeException("Quantity limit exceed");
+        }
+
+        customerProduct.setQuantity(customerProduct.getQuantity()-quantity);
+        reqItem.setQuantity(quantity);
+
+        if(custId %2 !=0) {
+            primaryCartItemRepo.save(reqItem);
+        }else {
+            secondaryCartItemRepo.save(reqItem);
+        }
+
+        if(customerProductId %2 !=0 ){
+            primaryCustomerProductRepo.save(customerProduct);
+        }else {
+            secondaryCustomerProductRepo.save(customerProduct);
+        }
+
     }
 }

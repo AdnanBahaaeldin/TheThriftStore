@@ -17,20 +17,19 @@ public class CartController {
     private CartService cartService;
 
     @PostMapping("/add")
-    public ResponseEntity<String> addItemToCart(@RequestParam Long customerProductId,
+    public ResponseEntity<String> addItemToCart(@RequestParam Long itemId,
                                                 @RequestParam Integer quantity) {
         Long customerId = SecurityUtils.getCurrentUserId();
         try {
-            cartService.addItemToCart(customerId, customerProductId, quantity);
+            cartService.addItemToCart(customerId, itemId, quantity);
             return ResponseEntity.ok("Item added to the cart");
         }catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
-
     }
 
     @DeleteMapping("/remove")
-    public ResponseEntity<String> removeItemFromCart(@RequestParam Long customerProductId) {
+    public ResponseEntity<String> removeItemFromCart(@RequestParam long customerProductId) {
         Long customerId = SecurityUtils.getCurrentUserId();
 
         try{
@@ -51,6 +50,14 @@ public class CartController {
         }catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+
+    @PutMapping("/update")
+    public ResponseEntity<String> updateCartItem(@RequestParam Long itemId,
+                                                 @RequestParam Integer quantity){
+        cartService.updateCartItem(itemId, quantity);
+        return ResponseEntity.ok("Updated Successfully");
     }
 
     @GetMapping("/items")

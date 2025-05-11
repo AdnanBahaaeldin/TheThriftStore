@@ -117,7 +117,7 @@ public class AuthService {
             adminService.setStatus(authenticatedUser);
         }
         String jwtToken = jwtService.generateToken(authenticatedUser);
-        return new LoginResponseDto(jwtToken, jwtService.getExpirationTime());
+        return new LoginResponseDto(jwtToken, jwtService.getExpirationTime(),authenticatedUser.getRole().toString());
     }
 
     public boolean existsByIdAndPhone(RegisterDto registerCustomerDto) {

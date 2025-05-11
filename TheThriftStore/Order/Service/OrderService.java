@@ -9,6 +9,7 @@ import java.util.Optional;
 import com.TheThriftStore.TheThriftStore.Models.*;
 import com.TheThriftStore.TheThriftStore.PrimaryRepositories.*;
 import com.TheThriftStore.TheThriftStore.SecondaryRepositories.*;
+import com.TheThriftStore.TheThriftStore.Utility.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
@@ -69,8 +70,9 @@ public class OrderService {
     }
 
 
-    @Transactional
-    public void createOrder(Long customerId) throws Exception {
+
+    public String createOrder()  {
+        Long customerId = SecurityUtils.getCurrentUserId();
         Long maxIdOrder = max(primaryOrderRepository.getLastAddedId(), secondaryOrderRepository.getLastAddedId());
         Customer customer;
         List<CartItem> cartItems;
@@ -83,7 +85,7 @@ public class OrderService {
         }
 
         if (cartItems.isEmpty()) {
-            throw new Exception("Cart is empty");
+            return "Cart is empty";
         }
 
         Double totalAmount = 0.0;
@@ -119,7 +121,7 @@ public class OrderService {
         }
 
         if (customer.getBalance().compareTo(totalAmount) < 0) {
-            throw new Exception("Insufficient balance");
+         return "Insufficient balance" ;
         }
 
         // Deduct from buyer
@@ -191,7 +193,7 @@ public class OrderService {
 
 
         // Clear cart
-
+        return "Success";
     }
 
     public void cancelOrder(Long orderId) throws Exception {
@@ -215,4 +217,20 @@ public class OrderService {
         }
     }
 
+    public List<Order> getAllOrders() {
+        Long custId = SecurityUtils.getCurrentUserId();
+        List<Order> orders;
+        if (custId %2 != 0) {
+            orders = primaryOrderRepository.findByCustomerId(custId);
+        }else {
+            orders = secondaryOrderRepository.findByCustomerId(custId);
+        }
+        return orders;
+    }
+
+    public List<Order> getAllOrdersAdmin() {
+        List<Order> orders = primaryOrderRepository.findAll();
+        orders.addAll(secondaryOrderRepository.findAll());
+        return orders;
+    }
 }

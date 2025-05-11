@@ -87,12 +87,57 @@ public class InfoService {
         return CP;
     }
 
-    public Customer getCustomer(){
+
+    public Customer getCustomerData(){
         Long customerId = SecurityUtils.getCurrentUserId();
-        if(customerId %2 != 0) {
-            return primaryCustomerRepo.findById(customerId).get();
+        Customer customer = null;
+
+        if(customerId %2 !=0) {
+            customer = primaryCustomerRepo.findById(customerId).orElseThrow();
         }else {
-            return secondaryCustomerRepo.findById(customerId).get();
+            customer = secondaryCustomerRepo.findById(customerId).orElseThrow();
         }
+        return customer;
+    }
+
+    public void updateCustomerDetails(Customer customer) {
+        Long custId = SecurityUtils.getCurrentUserId();
+        Customer currentCustomer;
+        if (custId % 2 != 0) {
+            currentCustomer =primaryCustomerRepo.findById(custId).orElseThrow();
+        }else {
+            currentCustomer = secondaryCustomerRepo.findById(custId).orElseThrow();
+        }
+
+        currentCustomer.setName(customer.getName());
+        currentCustomer.setPhoneNumber(customer.getPhoneNumber());
+
+        if (custId % 2 != 0) {
+            primaryCustomerRepo.save(currentCustomer);
+        }else {
+           secondaryCustomerRepo.save(currentCustomer);
+        }
+
+
+    }
+
+    public void updateCustomerBalance(Long newBalance) {
+
+        Long custId = SecurityUtils.getCurrentUserId();
+        Customer currentCustomer;
+        if (custId % 2 != 0) {
+            currentCustomer =primaryCustomerRepo.findById(custId).orElseThrow();
+        }else {
+            currentCustomer = secondaryCustomerRepo.findById(custId).orElseThrow();
+        }
+
+        currentCustomer.setBalance(currentCustomer.getBalance()+newBalance);
+
+        if (custId % 2 != 0) {
+            primaryCustomerRepo.save(currentCustomer);
+        }else {
+            secondaryCustomerRepo.save(currentCustomer);
+        }
+
     }
 }

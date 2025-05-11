@@ -13,7 +13,9 @@ import java.util.*;
 @Data
 public class CustomerInfo {
 
-    private Customer customer;
+    private String name;
+    private String phoneNumber;
+    private String email;
 
     private double custBalance;
 

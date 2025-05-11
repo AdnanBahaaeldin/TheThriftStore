@@ -1,27 +1,25 @@
 package com.TheThriftStore.TheThriftStore.Order.Controller;
 
+import com.TheThriftStore.TheThriftStore.Models.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.TheThriftStore.TheThriftStore.Order.Service.OrderService;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/orders")
 public class OrderController {
 
-
     @Autowired
     private OrderService orderService;
 
     @PostMapping("/create")
-    public ResponseEntity<String> createOrder(@RequestParam Long customerId) {
+    public ResponseEntity<String> createOrder() {
         try {
-            orderService.createOrder(customerId);
+            orderService.createOrder();
             return ResponseEntity.ok("Order created successfully");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -36,5 +34,10 @@ public class OrderController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+    @GetMapping("/get")
+    public ResponseEntity<List<Order>> getOrders(){
+        return  ResponseEntity.ok(orderService.getAllOrders());
     }
 }

@@ -5,6 +5,7 @@ import com.TheThriftStore.TheThriftStore.Models.Product;
 
 
 import java.time.LocalDateTime;
+import java.util.Base64;
 
 import com.TheThriftStore.TheThriftStore.Models.Users;
 import com.TheThriftStore.TheThriftStore.PrimaryRepositories.PrimaryCustomerRepo;
@@ -13,6 +14,7 @@ import com.TheThriftStore.TheThriftStore.Utility.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 
@@ -47,29 +49,23 @@ public class CustomerService {
         }
     }
 
-    public void addProductToCustomer(Product product) {
+    public Long addProductToCustomer(Product product, MultipartFile imageFile) {
         Long customerId = SecurityUtils.getCurrentUserId();
         Customer customer;
+
         if(customerId%2 != 0) {
-            try {
-                customer = primaryCustomerRepo.findById(customerId)
-                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found"));
-            }catch (Exception e) {
-                e.getMessage();
-                return;
-            }
+
+            customer = primaryCustomerRepo.findById(customerId)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found"));
         }else {
-            try {
-                customer = secondaryCustomerRepo.findById(customerId)
-                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found"));
-            }catch (Exception e) {
-                e.getMessage();
-                return;
-            }
+
+            customer = secondaryCustomerRepo.findById(customerId)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found"));
+
         }
 
-        Product savedProduct = productService.addProduct(product);
-        customerProductService.linkCustomerToProduct(customer, savedProduct);
+        Product savedProduct = productService.addProduct(product,imageFile);
+        return customerProductService.linkCustomerToProduct(customer, savedProduct);
     }
 
 
@@ -93,7 +89,7 @@ public class CustomerService {
             try {
                 customer = primaryCustomerRepo.findById(customerId)
                         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found"));
-                customer.setBalance(balance);
+                customer.setBalance(customer.getBalance()+balance);
                 primaryCustomerRepo.save(customer);
             }catch (Exception e) {
                 e.getMessage();
@@ -103,12 +99,49 @@ public class CustomerService {
             try {
                 customer = secondaryCustomerRepo.findById(customerId)
                         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found"));
-                customer.setBalance(balance);
+                customer.setBalance(customer.getBalance()+balance);
                 secondaryCustomerRepo.save(customer);
             }catch (Exception e) {
                 e.getMessage();
                 return;
             }
         }
+    }
+
+    public byte[] getImage() {
+        Long custId = SecurityUtils.getCurrentUserId();
+        Customer customer;
+        if ((custId%2) != 0) {
+            customer = primaryCustomerRepo.findById(custId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found"));
+        }else {
+            customer = secondaryCustomerRepo.findById(custId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found"));
+        }
+        return customer.getImageData();
+    }
+
+    public void updateProfileImage(MultipartFile image) {
+        Long custId = SecurityUtils.getCurrentUserId();
+        Customer customer;
+
+        if(custId %2 != 0) {
+            customer = primaryCustomerRepo.findById(custId).orElseThrow(() -> new RuntimeException("Customer not found"));
+        }else {
+            customer = secondaryCustomerRepo.findById(custId).orElseThrow(() -> new RuntimeException("Customer not found"));
+        }
+
+        try{
+             customer.setImageData(image.getBytes());
+        }catch (Exception e){
+            throw new RuntimeException("Failed to set image");
+        }
+
+        if(custId %2 != 0) {
+            primaryCustomerRepo.save(customer);
+        }else {
+            secondaryCustomerRepo.save(customer);
+        }
+
+
+
     }
 }

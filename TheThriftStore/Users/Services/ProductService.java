@@ -8,10 +8,16 @@ import com.TheThriftStore.TheThriftStore.PrimaryRepositories.PrimaryProductRepo;
 import com.TheThriftStore.TheThriftStore.SecondaryRepositories.SecondaryCustomerProductRepo;
 import com.TheThriftStore.TheThriftStore.SecondaryRepositories.SecondaryProductRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StreamUtils;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 import static java.lang.Math.max;
@@ -38,10 +44,19 @@ public class ProductService {
         this.secondaryCustomerProductRepo = secondaryCustomerProductRepo;
     }
 
-    public Product addProduct(Product product) {
+    public Product addProduct(Product product, MultipartFile imageFile) {
         // This function inserts a new product into the 'product' table
         Long maxPID = max(primaryProductRepo.getLastAddedId(),secondaryProductRepo.getLastAddedId());
         product.setProductId(maxPID+1);
+        byte[] defaultImage;
+        try {
+            product.setImageName(imageFile.getOriginalFilename());
+            product.setImageType(imageFile.getContentType());
+            product.setImageData(imageFile.getBytes());
+        }catch (Exception e){
+            throw new RuntimeException("Image format isn't correct");
+        }
+
 
         if(maxPID %2 != 0){
             secondaryProductRepo.save(product);
@@ -103,4 +118,22 @@ public class ProductService {
         return returnList;
     }
 
+    public Product getProductById(Long prodId) {
+        CustomerProduct customerProduct;
+
+        if(prodId %2 != 0) {
+            customerProduct = primaryCustomerProductRepo.findById(prodId).orElseThrow();
+        }else {
+            customerProduct = secondaryCustomerProductRepo.findById(prodId).orElseThrow();
+        }
+
+        Long productId = customerProduct.getProductId();
+        Product product;
+        if(productId %2 !=0){
+             product = primaryProductRepo.findById(prodId).orElseThrow();
+        }else {
+            product = secondaryProductRepo.findById(prodId).orElseThrow();
+        }
+        return product;
+    }
 }

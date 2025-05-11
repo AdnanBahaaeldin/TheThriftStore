@@ -1,6 +1,10 @@
 package com.TheThriftStore.TheThriftStore.Users.Services;
+import com.TheThriftStore.TheThriftStore.DTOS.CustomerProductDto;
+import com.TheThriftStore.TheThriftStore.PrimaryRepositories.PrimaryCustomerRepo;
 import com.TheThriftStore.TheThriftStore.SecondaryRepositories.SecondaryCustomerProductRepo;
+import com.TheThriftStore.TheThriftStore.SecondaryRepositories.SecondaryCustomerRepo;
 import com.TheThriftStore.TheThriftStore.SecondaryRepositories.SecondaryProductRepo;
+import com.TheThriftStore.TheThriftStore.Utility.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -15,8 +19,10 @@ import com.TheThriftStore.TheThriftStore.PrimaryRepositories.PrimaryProductRepo;
 
 import jakarta.transaction.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import static java.lang.Math.abs;
 import static java.lang.Math.max;
 
 
@@ -30,24 +36,59 @@ public class CustomerProductService {
     private final PrimaryProductRepo primaryProductRepo;
     private final SecondaryProductRepo secondaryProductRepo;
 
+    private final PrimaryCustomerRepo primaryCustomerRepo;
+    private final SecondaryCustomerRepo secondaryCustomerRepo;
+
     @Autowired
     public CustomerProductService(PrimaryCustomerProductRepo primaryCustomerProductRepo,
                                   SecondaryCustomerProductRepo secondaryCustomerProductRepo,
                                   PrimaryProductRepo primaryProductRepo,
-                                  SecondaryProductRepo secondaryProductRepo) {
+                                  SecondaryProductRepo secondaryProductRepo, PrimaryCustomerRepo primaryCustomerRepo, SecondaryCustomerRepo secondaryCustomerRepo) {
         this.primaryCustomerProductRepo = primaryCustomerProductRepo;
         this.secondaryCustomerProductRepo = secondaryCustomerProductRepo;
         this.primaryProductRepo = primaryProductRepo;
         this.secondaryProductRepo = secondaryProductRepo;
+        this.primaryCustomerRepo = primaryCustomerRepo;
+        this.secondaryCustomerRepo = secondaryCustomerRepo;
     }
 
-    public List<CustomerProduct> getProductsByPage(int pageIndex, int pageSize) {
-        List<CustomerProduct> list = primaryCustomerProductRepo.findAll(PageRequest.of(pageIndex, (pageSize+1)/2)).getContent();
-        list.addAll(secondaryCustomerProductRepo.findAll(PageRequest.of(pageIndex, pageSize-list.size())).getContent());
-        return list;
+    public List<CustomerProductDto> getProductsByPage() {
+        List<CustomerProduct> list = primaryCustomerProductRepo.findAll();
+        list.addAll(secondaryCustomerProductRepo.findAll());
+
+        List<CustomerProductDto> listDto = new ArrayList<>();
+        for(var item : list){
+            Product product;
+            Customer customer;
+            if(item.getProductId() % 2 !=0) {
+               product = primaryProductRepo.findById(item.getProductId()).orElseThrow();
+            }else {
+                product = secondaryProductRepo.findById(item.getProductId()).orElseThrow();
+            }
+
+            if(item.getCustomerId() %2 != 0){
+                customer = primaryCustomerRepo.findById(item.getCustomerId()).orElseThrow();
+            }else {
+                customer = secondaryCustomerRepo.findById(item.getCustomerId()).orElseThrow();
+            }
+            CustomerProductDto dto = new CustomerProductDto(
+                    item.getCustomerProductId(),
+                    product.getProductName(),
+                    product.getImageData(),
+                    product.getDescription(),
+                    product.getPrice(),
+                    item.getQuantity(),
+                    customer.getName(),
+                    product.getCategoryName()
+            );
+
+            listDto.add(dto);
+
+        }
+        return listDto;
     }
 
-    public void linkCustomerToProduct(Customer customer, Product product) {
+    public Long linkCustomerToProduct(Customer customer, Product product) {
         CustomerProduct customerProduct = new CustomerProduct();
         customerProduct.setCustomerId(customer.getId());
         customerProduct.setProductId(product.getProductId());
@@ -61,8 +102,10 @@ public class CustomerProductService {
             customerProduct.setCustomerProductId(maxId+1);
             primaryCustomerProductRepo.save(customerProduct);
         }
+        return maxId+1;
     }
 
+    @Transactional
     public void removeCustomerProduct(Long customerProductId) {
 
         if (!primaryCustomerProductRepo.existsById(customerProductId) &&
@@ -104,7 +147,7 @@ public class CustomerProductService {
 
         existingProduct.setProductName(updatedProduct.getProductName());
         existingProduct.setDescription(updatedProduct.getDescription());
-        existingProduct.setImageURL(updatedProduct.getImageURL());
+        existingProduct.setImageData(updatedProduct.getImageData());
         existingProduct.setQuantity(updatedProduct.getQuantity());
         existingProduct.setPrice(updatedProduct.getPrice());
 
@@ -124,6 +167,64 @@ public class CustomerProductService {
         }else {
             secondaryCustomerProductRepo.save(customerProduct);
         }
+
+    }
+
+    public Product getProductById(Long customerProductId) {
+        CustomerProduct customerProduct;
+        if(customerProductId %2 !=0) {
+            customerProduct = primaryCustomerProductRepo.findById(customerProductId).orElseThrow();
+        }else {
+            customerProduct = secondaryCustomerProductRepo.findById(customerProductId).orElseThrow();
+        }
+
+        Product product;
+        Long prodId = customerProduct.getProductId();
+        if(prodId %2 !=0) {
+            product = primaryProductRepo.findById(prodId).orElseThrow();
+        }else {
+            product = secondaryProductRepo.findById(prodId).orElseThrow();
+        }
+
+        return product;
+    }
+
+    public List<CustomerProductDto> getProductsForUser() {
+        Long currentUserId = SecurityUtils.getCurrentUserId();
+
+        List<CustomerProduct> list = primaryCustomerProductRepo.findAllByCustomerId(currentUserId);
+        list.addAll(secondaryCustomerProductRepo.findAllByCustomerId(currentUserId));
+
+        List<CustomerProductDto> listDto = new ArrayList<>();
+        for(var item : list){
+            Product product;
+            Customer customer;
+            if(item.getProductId() % 2 !=0) {
+                product = primaryProductRepo.findById(item.getProductId()).orElseThrow();
+            }else {
+                product = secondaryProductRepo.findById(item.getProductId()).orElseThrow();
+            }
+
+            if(item.getCustomerId() %2 != 0){
+                customer = primaryCustomerRepo.findById(item.getCustomerId()).orElseThrow();
+            }else {
+                customer = secondaryCustomerRepo.findById(item.getCustomerId()).orElseThrow();
+            }
+            CustomerProductDto dto = new CustomerProductDto(
+                    item.getCustomerProductId(),
+                    product.getProductName(),
+                    product.getImageData(),
+                    product.getDescription(),
+                    product.getPrice(),
+                    item.getQuantity(),
+                    customer.getName(),
+                    product.getCategoryName()
+            );
+
+            listDto.add(dto);
+
+        }
+        return listDto;
 
     }
 }

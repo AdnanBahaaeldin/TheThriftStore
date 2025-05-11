@@ -29,7 +29,11 @@ public class Product {
     @Column(nullable = false)
     private Integer quantity;
 
-    private String imageURL;
+    private String imageName;
+    private String imageType;
+
+    @Lob
+    byte[] imageData;
 
     @Column(nullable = false)
     private Double price;
